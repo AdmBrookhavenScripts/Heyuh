@@ -11,21 +11,30 @@ def home():
 
 @app.route("/convert", methods=["POST"])
 def convert():
-    f = request.files["file"]
-    path = os.path.join("uploads", f.filename)
-    f.save(path)
+    try:
+        f = request.files["file"]
+        path = os.path.join("uploads", f.filename)
+        f.save(path)
 
-    subprocess.run(["lua5.3","lua2rbxmxv2.lua",path])
-    subprocess.run(["python","rbxm2anim.py","lua2rbxmx.rbxmx"])
+        r1 = subprocess.run(["lua","lua2rbxmxv2.lua",path], capture_output=True, text=True)
+        print("LUA:", r1.stdout, r1.stderr)
 
-    out = None
-    for file in os.listdir():
-        if file.endswith(".anim"):
-            out = file
-            break
+        r2 = subprocess.run(["python","rbxm2anim.py","lua2rbxmx.rbxmx"], capture_output=True, text=True)
+        print("PY:", r2.stdout, r2.stderr)
 
-    if not out:
-        return "error", 500
+        out = None
+        for file in os.listdir():
+            if file.endswith(".anim"):
+                out = file
+                break
+
+        if not out:
+            return "erro: anim não gerado", 500
+
+        return send_file(out, as_attachment=True)
+
+    except Exception as e:
+        return str(e), 500
 
     return send_file(out, as_attachment=True)
 
