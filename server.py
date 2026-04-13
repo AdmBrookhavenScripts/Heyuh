@@ -21,7 +21,7 @@ def convert():
 
         print("arquivo salvo:", path)
 
-        r1 = subprocess.run(["./lua","lua2rbxmxv2.lua", path]), capture_output=True, text=True)
+        r1 = subprocess.run(["./lua","lua2rbxmxv2.lua", path], capture_output=True, text=True)
         print("lua stdout:", r1.stdout)
         print("lua stderr:", r1.stderr)
 
