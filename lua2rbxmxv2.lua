@@ -1,6 +1,10 @@
 print("Loading file...")
-print("Type name or directory of the .lua file here:")
-local filename = io.read()
+local filename = arg[1]
+
+if not filename then
+    print("no file provided")
+    return
+end
 local func, err = loadfile(filename)
 if not func then
     print("Error to load file: " .. tostring(err))
