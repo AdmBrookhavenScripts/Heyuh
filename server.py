@@ -15,7 +15,7 @@ def convert():
     path = os.path.join("uploads", f.filename)
     f.save(path)
 
-    subprocess.run(["lua","lua2rbxmxv2.lua",path])
+    subprocess.run(["lua5.3","lua2rbxmxv2.lua",path])
     subprocess.run(["python","rbxm2anim.py","lua2rbxmx.rbxmx"])
 
     out = None
