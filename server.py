@@ -12,31 +12,51 @@ def home():
 @app.route("/convert", methods=["POST"])
 def convert():
     try:
-        f = request.files["file"]
+        f = request.files.get("file")
+        if not f:
+            return "sem arquivo", 400
+
         path = os.path.join("uploads", f.filename)
         f.save(path)
 
-        r1 = subprocess.run(["lua","lua2rbxmxv2.lua",path], capture_output=True, text=True)
-        print("LUA:", r1.stdout, r1.stderr)
+        print("arquivo salvo:", path)
 
-        r2 = subprocess.run(["python","rbxm2anim.py","lua2rbxmx.rbxmx"], capture_output=True, text=True)
-        print("PY:", r2.stdout, r2.stderr)
+        r1 = subprocess.run(["lua5.3","lua2rbxmxv2.lua",path], capture_output=True, text=True)
+        print("lua stdout:", r1.stdout)
+        print("lua stderr:", r1.stderr)
 
-        out = None
+        rbxmx = None
         for file in os.listdir():
-            if file.endswith(".anim"):
-                out = file
+            if file.endswith(".rbxmx"):
+                rbxmx = file
                 break
 
-        if not out:
-            return "erro: anim não gerado", 500
+        print("rbxmx:", rbxmx)
 
-        return send_file(out, as_attachment=True)
+        if not rbxmx:
+            return "rbxmx não gerado", 500
+
+        r2 = subprocess.run(["python","rbxm2anim.py",rbxmx], capture_output=True, text=True)
+        print("py stdout:", r2.stdout)
+        print("py stderr:", r2.stderr)
+
+        anim = None
+        for file in os.listdir():
+            if file.endswith(".anim"):
+                anim = file
+                break
+
+        print("anim:", anim)
+
+        if not anim:
+            return "anim não gerado", 500
+
+        return send_file(anim, as_attachment=True)
 
     except Exception as e:
+        print("ERRO:", e)
         return str(e), 500
 
-    return send_file(out, as_attachment=True)
-
 if __name__ == "__main__":
+    import os
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))
