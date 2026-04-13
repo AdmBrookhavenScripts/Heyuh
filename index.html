@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>converter</title>
+<style>
+body{background:#0f0f0f;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+.box{background:#1a1a1a;padding:30px;border-radius:10px;text-align:center}
+button{background:#2a2a2a;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer}
+input{margin-bottom:10px}
+a{display:block;margin-top:10px;color:#4da3ff}
+</style>
+</head>
+<body>
+<div class="box">
+<h2>converter</h2>
+<input type="file" id="f"><br>
+<button onclick="go()">converter</button>
+<p id="s"></p>
+<a id="d" style="display:none">download</a>
+</div>
+<script>
+async function go(){
+let f=document.getElementById("f").files[0]
+if(!f)return
+let s=document.getElementById("s")
+let d=document.getElementById("d")
+s.innerText="converting..."
+d.style.display="none"
+let fd=new FormData()
+fd.append("file",f)
+let r=await fetch("/convert",{method:"POST",body:fd})
+let b=await r.blob()
+let u=URL.createObjectURL(b)
+s.innerText="finished"
+d.href=u
+d.download="result.anim"
+d.style.display="block"
+}
+</script>
+</body>
+</html>
