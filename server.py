@@ -14,13 +14,20 @@ def convert():
     f = request.files["file"]
     path = os.path.join("uploads", f.filename)
     f.save(path)
+
     subprocess.run(["lua","lua2rbxmxv2.lua",path])
     subprocess.run(["python","rbxm2anim.py","lua2rbxmx.rbxmx"])
+
     out = None
     for file in os.listdir():
         if file.endswith(".anim"):
             out = file
             break
+
+    if not out:
+        return "error", 500
+
     return send_file(out, as_attachment=True)
 
-app.run(host="0.0.0.0", port=3000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))
